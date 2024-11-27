@@ -1,0 +1,199 @@
+############################################################
+# 1. Neopixel LED Configuration
+# Written by Nozzle Wizard
+# 9th November 2024
+# V1.2 - Fixed parsing errors and syntax issues
+############################################################
+
+[neopixel LED_STRIP]
+pin: PB0
+chain_count: 42
+color_order: GRB
+initial_RED: 1.0
+initial_GREEN: 1.0
+initial_BLUE: 1.0
+
+############################################################
+# 2. Status Macros for 42 LEDs with Dynamic Effects
+############################################################
+
+[gcode_macro STATUS_READY]
+gcode:
+    # Define color loop sequence
+    {% set color_loop = [
+        (1.0, 0.0, 0.0),  # Red
+        (1.0, 0.5, 0.0),  # Orange
+        (1.0, 1.0, 0.0),  # Yellow
+        (0.0, 1.0, 0.0),  # Green
+        (0.0, 1.0, 1.0),  # Cyan
+        (0.0, 0.0, 1.0),  # Blue
+        (1.0, 0.0, 1.0)   # Magenta
+    ] %}
+    # Color loop effect
+    {% for r, g, b in color_loop %}
+    SET_LED LED=LED_STRIP RED={r} GREEN={g} BLUE={b}
+    G4 P100  # Wait for 100ms
+    {% endfor %}
+    # Set LEDs to the final color (Green)
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=1.0 BLUE=0.0
+
+# ... (Other existing macros remain the same)
+
+############################################################
+# 3. New Extravagant Macro with Chasing Lights and Flashes
+############################################################
+
+[gcode_macro STATUS_READY]
+gcode:
+    # Define color loop sequence
+    {% set color_loop = [
+        (1.0, 0.0, 0.0),  # Red
+        (1.0, 0.5, 0.0),  # Orange
+        (1.0, 1.0, 0.0),  # Yellow
+        (0.0, 1.0, 0.0),  # Green
+        (0.0, 1.0, 1.0),  # Cyan
+        (0.0, 0.0, 1.0),  # Blue
+        (1.0, 0.0, 1.0)   # Magenta
+    ] %}
+    # Color loop effect
+    {% for r, g, b in color_loop %}
+    SET_LED LED=LED_STRIP RED={r} GREEN={g} BLUE={b}
+    G4 P100  # Wait for 100ms
+    {% endfor %}
+    # Set LEDs to the final color (Green)
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=1.0 BLUE=0.0
+
+[gcode_macro STATUS_PRINTING]
+gcode:
+    # Flashing effect
+    {% for n in range(3) %}
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=0.0 BLUE=1.0
+    G4 P200  # Wait for 200ms
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=0.0 BLUE=0.0
+    G4 P200  # Wait for 200ms
+    {% endfor %}
+    # Set LEDs to the final color (Blue)
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=0.0 BLUE=1.0
+
+[gcode_macro STATUS_HEATING]
+gcode:
+    # Fade-in effect to Orange
+    {% for i in range(0, 101, 5) %}
+    {% set intensity = i / 100 %}
+    SET_LED LED=LED_STRIP RED={intensity} GREEN={intensity * 0.5} BLUE=0.0
+    G4 P50  # Wait for 50ms
+    {% endfor %}
+    # Hold the final color (Orange)
+    SET_LED LED=LED_STRIP RED=1.0 GREEN=0.5 BLUE=0.0
+
+[gcode_macro STATUS_BUSY]
+gcode:
+    # Define color loop sequence
+    {% set color_loop = [
+        (1.0, 0.0, 0.0),  # Red
+        (1.0, 0.5, 0.0),  # Orange
+        (1.0, 1.0, 0.0),  # Yellow
+        (0.0, 1.0, 0.0),  # Green
+        (0.0, 1.0, 1.0),  # Cyan
+        (0.0, 0.0, 1.0),  # Blue
+        (1.0, 0.0, 1.0)   # Magenta
+    ] %}
+    # Color loop effect
+    {% for r, g, b in color_loop %}
+    SET_LED LED=LED_STRIP RED={r} GREEN={g} BLUE={b}
+    G4 P80  # Wait for 80ms
+    {% endfor %}
+    # Set LEDs to the final color (Yellow)
+    SET_LED LED=LED_STRIP RED=1.0 GREEN=1.0 BLUE=0.0
+
+[gcode_macro STATUS_HOMING]
+gcode:
+    # Pulse effect
+    {% for i in range(3) %}
+    SET_LED LED=LED_STRIP RED=0.5 GREEN=0.0 BLUE=1.0
+    G4 P150  # Wait for 150ms
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=0.0 BLUE=0.0
+    G4 P150  # Wait for 150ms
+    {% endfor %}
+    # Set LEDs to the final color (Purple)
+    SET_LED LED=LED_STRIP RED=0.5 GREEN=0.0 BLUE=1.0
+
+[gcode_macro STATUS_LEVELING]
+gcode:
+    # Sweep effect across LEDs
+    {% for i in range(1, 43) %}
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=0.0 BLUE=0.0  # Turn off all LEDs
+    SET_LED LED=LED_STRIP INDEX={i} RED=0.0 GREEN=1.0 BLUE=0.8
+    G4 P30  # Delay between LEDs
+    {% endfor %}
+    # Ensure all LEDs are set to the final color
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=1.0 BLUE=0.8
+
+[gcode_macro STATUS_PURGING]
+gcode:
+    # Alternate between two colors
+    {% for n in range(5) %}
+    SET_LED LED=LED_STRIP RED=1.0 GREEN=0.0 BLUE=1.0  # Magenta
+    G4 P100
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=1.0 BLUE=1.0  # Cyan
+    G4 P100
+    {% endfor %}
+    # Set LEDs to the final color (Magenta)
+    SET_LED LED=LED_STRIP RED=1.0 GREEN=0.0 BLUE=1.0
+
+[gcode_macro STATUS_COOLDOWN]
+gcode:
+    # Fade-out effect from Light Blue to Off
+    {% for i in range(100, -1, -5) %}
+    {% set intensity = i / 100 %}
+    SET_LED LED=LED_STRIP RED={intensity * 0.3} GREEN={intensity * 0.5} BLUE={intensity}
+    G4 P50  # Wait for 50ms
+    {% endfor %}
+    # Ensure all LEDs are off
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=0.0 BLUE=0.0
+
+[gcode_macro STATUS_PAUSED]
+gcode:
+    # Blinking effect
+    {% for n in range(4) %}
+    SET_LED LED=LED_STRIP RED=1.0 GREEN=0.8 BLUE=0.0
+    G4 P250
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=0.0 BLUE=0.0
+    G4 P250
+    {% endfor %}
+    # Set LEDs to the final color (Amber)
+    SET_LED LED=LED_STRIP RED=1.0 GREEN=0.8 BLUE=0.0
+
+[gcode_macro STATUS_ERROR]
+gcode:
+    # Rapid flashing red
+    {% for n in range(6) %}
+    SET_LED LED=LED_STRIP RED=1.0 GREEN=0.0 BLUE=0.0
+    G4 P100
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=0.0 BLUE=0.0
+    G4 P100
+    {% endfor %}
+    # Set LEDs to the final color (Red)
+    SET_LED LED=LED_STRIP RED=1.0 GREEN=0.0 BLUE=0.0
+
+[gcode_macro STATUS_MESHING]
+gcode:
+    # Moving light effect
+    {% for i in range(1, 43) %}
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=0.0 BLUE=0.0  # Turn off all LEDs
+    SET_LED LED=LED_STRIP INDEX={i} RED=0.0 GREEN=0.6 BLUE=0.5
+    G4 P50  # Wait for 50ms
+    {% endfor %}
+    # Set LEDs to the final color
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=0.6 BLUE=0.5
+
+[gcode_macro STATUS_OFF]
+gcode:
+    # Gradual fade to off
+    {% for i in range(100, -1, -5) %}
+    {% set intensity = i / 100 %}
+    SET_LED LED=LED_STRIP RED={intensity} GREEN={intensity} BLUE={intensity}
+    G4 P50
+    {% endfor %}
+    # Ensure all LEDs are off
+    SET_LED LED=LED_STRIP RED=0.0 GREEN=0.0 BLUE=0.0
